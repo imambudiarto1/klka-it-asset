@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Kelola User — KLKA IT Asset{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="fw-bold mb-0">Kelola User</h5>
+  <button class="btn btn-klk btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdd">+ Tambah User</button>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr><th>Nama</th><th>Email</th><th>Role</th><th>Dibuat</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="fw-semibold">{{ u.name }}</td>
+          <td class="small text-muted">{{ u.email }}</td>
+          <td>
+            <span class="badge {{ 'bg-danger' if u.role == 'admin' else 'bg-secondary' }}">{{ u.role }}</span>
+          </td>
+          <td class="small text-muted">{{ u.created_at[:10] if u.created_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="modalAdd" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="/users/add">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Tambah User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Nama</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Email</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Default: klka2026">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Role</label>
+            <select name="role" class="form-select">
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-klk">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

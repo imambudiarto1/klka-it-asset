@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}KLKA IT Asset Management{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root { --klk: #1a5c1a; --klk-dark: #124012; --klk-light: #e8f5e9; }
+    body { background: #f4f6f8; font-family: 'Segoe UI', sans-serif; }
+
+    /* Navbar */
+    .klk-navbar { background: var(--klk); box-shadow: 0 2px 8px rgba(0,0,0,.18); height:60px; }
+    .klk-navbar .navbar-brand { font-size:15px; font-weight:700; letter-spacing:.3px; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 230px; min-height: calc(100vh - 60px);
+      background: #fff; border-right: 1px solid #e0e0e0;
+      padding-top: 12px;
+      box-shadow: 2px 0 8px rgba(0,0,0,.04);
+    }
+    .sidebar .nav-section {
+      font-size: 10px; font-weight: 700; color: #aaa;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      padding: 16px 20px 6px;
+    }
+    .sidebar .nav-link {
+      color: #444; padding: 10px 20px; border-radius: 0;
+      font-size: 14px; display: flex; align-items: center; gap: 10px;
+      border-left: 3px solid transparent;
+    }
+    .sidebar .nav-link:hover { background: var(--klk-light); color: var(--klk); }
+    .sidebar .nav-link.active {
+      background: var(--klk-light); color: var(--klk);
+      font-weight: 600; border-left: 3px solid var(--klk);
+    }
+    .sidebar .nav-link .icon { font-size: 16px; width: 22px; text-align: center; }
+
+    /* Main */
+    .main-content { flex: 1; padding: 28px 32px; min-height: calc(100vh - 60px); }
+
+    /* Cards */
+    .stat-card {
+      border-radius: 12px; border: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+    .stat-card .icon-bg {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    .btn-klk { background: var(--klk); color: #fff; border: none; }
+    .btn-klk:hover { background: var(--klk-dark); color: #fff; }
+    .card { border: none; box-shadow: 0 2px 12px rgba(0,0,0,.07); border-radius: 12px; }
+    .card-header { background: #fff; border-bottom: 1px solid #f0f0f0; border-radius: 12px 12px 0 0 !important; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar klk-navbar navbar-dark px-4 d-flex align-items-center justify-content-between">
+  <a class="navbar-brand d-flex align-items-center gap-2 text-white text-decoration-none" href="/">
+    <img src="/static/klk_logo.png" alt="KLK"
+         style="height:34px; filter:brightness(0) invert(1);">
+    <div>
+      <div style="font-size:14px; font-weight:700; line-height:1.2;">KLKA IT Asset Management</div>
+      <div style="font-size:10px; opacity:.65; font-weight:400;">Inventaris Aset IT — KLKA Indonesia</div>
+    </div>
+  </a>
+  {% if current_user %}
+  <div class="d-flex align-items-center gap-3">
+    <div class="text-end">
+      <div style="font-size:13px; color:#fff; font-weight:600;">{{ current_user.name }}</div>
+      <div style="font-size:11px; color:rgba(255,255,255,.6);">{{ current_user.role | capitalize }}</div>
+    </div>
+    <a href="/logout" class="btn btn-sm btn-outline-light px-3">Logout</a>
+  </div>
+  {% endif %}
+</nav>
+
+<div class="d-flex">
+  {% if current_user %}
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="nav-section">Menu</div>
+    <nav class="nav flex-column">
+      <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a class="nav-link {% if request.path == '/assets' %}active{% endif %}" href="/assets">
+        <span class="icon">🖥</span> Daftar Asset
+      </a>
+      <a class="nav-link {% if request.path == '/assets/add' %}active{% endif %}" href="/assets/add">
+        <span class="icon">➕</span> Tambah Asset
+      </a>
+    </nav>
+
+    {% if current_user.role == 'admin' %}
+    <div class="nav-section mt-2">Admin</div>
+    <nav class="nav flex-column">
+      <a class="nav-link {% if '/users' in request.path %}active{% endif %}" href="/users">
+        <span class="icon">👥</span> Kelola User
+      </a>
+    </nav>
+    {% endif %}
+
+    <!-- Filter Cepat -->
+    <div class="nav-section mt-2">Filter Cepat</div>
+    <nav class="nav flex-column">
+      <a class="nav-link" href="/assets?status=Active">
+        <span class="icon" style="color:#198754;">●</span> Active
+      </a>
+      <a class="nav-link" href="/assets?status=In+Repair">
+        <span class="icon" style="color:#fd7e14;">●</span> In Repair
+      </a>
+      <a class="nav-link" href="/assets?status=In+Storage">
+        <span class="icon" style="color:#0d6efd;">●</span> In Storage
+      </a>
+      <a class="nav-link" href="/assets?status=Retired">
+        <span class="icon" style="color:#6c757d;">●</span> Retired
+      </a>
+    </nav>
+  </div>
+  {% endif %}
+
+  <!-- Main Content -->
+  <div class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show py-2 small mb-3">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

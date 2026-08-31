@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Daftar Asset — KLKA IT Asset{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h5 class="fw-bold mb-0">Daftar Asset IT</h5>
+    <small class="text-muted">{{ assets | length }} asset ditemukan</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/assets/export?q={{ search }}&category={{ f_category }}&status={{ f_status }}&department={{ f_dept }}"
+       class="btn btn-outline-success btn-sm px-3">
+      ⬇ Export Excel
+    </a>
+    <a href="/assets/add" class="btn btn-klk btn-sm px-3">+ Tambah Asset</a>
+  </div>
+</div>
+
+<!-- Filter -->
+<form method="GET" action="/assets" id="filterForm">
+<div class="card mb-3">
+  <div class="card-body py-3 px-4">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-3">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white">🔍</span>
+          <input type="text" name="q" class="form-control border-start-0"
+                 placeholder="Cari nama, tag, serial, user..." value="{{ search }}">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">Semua Kategori</option>
+          {% for c in categories %}
+          <option {% if f_category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">Semua Status</option>
+          {% for s in statuses %}
+          <option {% if f_status == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="department" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">Semua Departemen</option>
+          {% for d in departments %}
+          <option {% if f_dept == d %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-klk btn-sm">Cari</button>
+        <a href="/assets" class="btn btn-outline-secondary btn-sm">Reset</a>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+
+<!-- Table SharePoint-like -->
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle mb-0 small" id="assetTable">
+      <thead style="background:#f0f4f0;position:sticky;top:0;z-index:1;">
+        <tr>
+          <th class="ps-3" style="cursor:pointer;white-space:nowrap;" onclick="sortTable(0)">
+            Asset Tag <span class="text-muted">↕</span>
+          </th>
+          <th style="cursor:pointer;white-space:nowrap;" onclick="sortTable(1)">
+            Nama Asset <span class="text-muted">↕</span>
+          </th>
+          <th style="cursor:pointer;" onclick="sortTable(2)">Kategori <span class="text-muted">↕</span></th>
+          <th style="cursor:pointer;" onclick="sortTable(3)">Brand <span class="text-muted">↕</span></th>
+          <th>Model</th>
+          <th>Serial No.</th>
+          <th style="cursor:pointer;" onclick="sortTable(6)">Status <span class="text-muted">↕</span></th>
+          <th>Lokasi</th>
+          <th style="cursor:pointer;" onclick="sortTable(8)">Departemen <span class="text-muted">↕</span></th>
+          <th>Assigned To</th>
+          <th>Email</th>
+          <th>Tgl Beli</th>
+          <th>Garansi</th>
+          <th>Catatan</th>
+          <th class="text-center" style="width:100px;">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        {% if assets %}
+          {% for a in assets %}
+          <tr>
+            <td class="ps-3 fw-semibold" style="white-space:nowrap;">
+              <span class="badge bg-dark">{{ a.asset_tag }}</span>
+            </td>
+            <td style="min-width:180px;font-weight:600;">{{ a.asset_name }}</td>
+            <td style="white-space:nowrap;">{{ a.category }}</td>
+            <td>{{ a.brand or '—' }}</td>
+            <td class="text-muted">{{ a.model or '—' }}</td>
+            <td class="text-muted" style="font-family:monospace;">{{ a.serial_number or '—' }}</td>
+            <td style="white-space:nowrap;">
+              {% if a.status == 'Active' %}
+                <span class="badge bg-success">Active</span>
+              {% elif a.status == 'In Repair' %}
+                <span class="badge bg-warning text-dark">In Repair</span>
+              {% elif a.status == 'Retired' %}
+                <span class="badge bg-secondary">Retired</span>
+              {% elif a.status == 'Lost' %}
+                <span class="badge bg-danger">Lost</span>
+              {% elif a.status == 'In Storage' %}
+                <span class="badge bg-primary">In Storage</span>
+              {% endif %}
+            </td>
+            <td class="text-muted">{{ a.location or '—' }}</td>
+            <td class="text-muted" style="white-space:nowrap;">{{ a.department or '—' }}</td>
+            <td style="white-space:nowrap;">{{ a.assigned_to or '—' }}</td>
+            <td class="text-muted small">{{ a.assigned_email or '—' }}</td>
+            <td class="text-muted" style="white-space:nowrap;">{{ a.purchase_date or '—' }}</td>
+            <td style="white-space:nowrap;">
+              {% if a.warranty_expiry %}
+                <span class="badge bg-light text-dark border">{{ a.warranty_expiry }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="text-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                title="{{ a.notes }}">{{ a.notes or '—' }}</td>
+            <td class="text-center" style="white-space:nowrap;">
+              <a href="/assets/{{ a.id }}/edit" class="btn btn-xs btn-outline-primary"
+                 style="font-size:11px;padding:2px 8px;">Edit</a>
+              <form method="POST" action="/assets/{{ a.id }}/delete" style="display:inline"
+                    onsubmit="return confirm('Hapus {{ a.asset_name }}?')">
+                <button class="btn btn-xs btn-outline-danger"
+                        style="font-size:11px;padding:2px 8px;">Hapus</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="15" class="text-center text-muted py-5">
+              <div style="font-size:2.5rem;opacity:.3;">🔍</div>
+              <p class="mt-2">Tidak ada asset ditemukan.</p>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-white py-2 px-4 d-flex justify-content-between align-items-center">
+    <span class="small text-muted">Total: <strong>{{ assets | length }}</strong> asset</span>
+    <span class="small text-muted">Klik header kolom untuk mengurutkan</span>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let sortDir = {};
+function sortTable(col) {
+  const tbody = document.getElementById('tableBody');
+  const rows  = Array.from(tbody.querySelectorAll('tr'));
+  sortDir[col] = !sortDir[col];
+  rows.sort((a, b) => {
+    const av = a.cells[col]?.innerText.trim() || '';
+    const bv = b.cells[col]?.innerText.trim() || '';
+    return sortDir[col] ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+</script>
+{% endblock %}

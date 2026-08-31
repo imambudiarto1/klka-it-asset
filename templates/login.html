@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — KLKA IT Asset</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background:#f0f4f0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .login-card { width:100%; max-width:400px; border-radius:16px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.12); }
+    .login-header { background:#1a5c1a; padding:32px; text-align:center; color:#fff; }
+    .btn-klk { background:#1a5c1a; color:#fff; border:none; }
+    .btn-klk:hover { background:#145214; color:#fff; }
+  </style>
+</head>
+<body>
+<div class="login-card bg-white">
+  <div class="login-header">
+    <div style="font-size:2.5rem;">🖥</div>
+    <div class="fw-bold fs-5 mt-2">KLKA IT Asset Management</div>
+    <div class="small opacity-75">Sistem Inventaris Aset IT</div>
+  </div>
+  <div class="p-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-danger py-2 small">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label fw-semibold small">Email</label>
+        <input type="email" name="email" class="form-control" placeholder="email@klk.co.id" required autofocus>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold small">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-klk w-100 py-2 fw-semibold">Sign in</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>
